@@ -20,15 +20,26 @@ import io.opentelemetry.api.trace.Tracer
 import io.opentelemetry.exporter.otlp.http.logs.OtlpHttpLogRecordExporter
 import io.opentelemetry.exporter.otlp.http.trace.OtlpHttpSpanExporter
 import io.opentelemetry.sdk.logs.internal.SdkEventLoggerProvider
-import java.time.Duration
-import kotlin.math.log
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 const val TAG = "otel.demo"
 
 class OtelDemoApplication : Application() {
+    @OptIn(DelicateCoroutinesApi::class)
     @SuppressLint("RestrictedApi")
     override fun onCreate() {
         super.onCreate()
+
+        GlobalScope.launch(Dispatchers.Default) {
+            while (true) {
+                val key = "hello${Math.random() * 100}"
+                System.getProperties()[key] = "test"
+                System.getProperties().remove(key)
+            }
+        }
 
         Log.i(TAG, "Initializing the opentelemetry-android-agent")
         val diskBufferingConfig =
